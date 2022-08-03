@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Text.RegularExpressions;
 using System.Collections;
+using UnityEngine.EventSystems;
 
 namespace Base.Extension
 {
@@ -22,6 +23,15 @@ namespace Base.Extension
             var rotation = new Vector3(0f, 0f, wheelCollider.rpm / 60 * 360 * Time.deltaTime);
 
             transform.Rotate(rotation);
+        }
+
+        public static bool IsPointerOverUIObject(Vector2 position, EventSystem eventSystem)
+        {
+            var eventDataCurrentPosition = new PointerEventData(eventSystem);
+            eventDataCurrentPosition.position = position;
+            var results = new List<RaycastResult>();
+            eventSystem.RaycastAll(eventDataCurrentPosition, results);
+            return results.Count > 0;
         }
 
         public static float GetPercentValue(float value, float percent)
@@ -69,7 +79,6 @@ namespace Base.Extension
         public static float PerformanceDistance(Vector3 a, Vector3 b)
         {
             var distance = (a - b).sqrMagnitude;
-
             return Mathf.Sqrt(distance);
         }
 

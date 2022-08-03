@@ -27,6 +27,7 @@ namespace GameModule
         private Transform _container;
         private float _sliderValue;
         private IBallLauncher _ballLauncher;
+        private IBallTrajectoryShower _ballTrajectoryShower;
         private ICueRotator _cueRotator;
         private CoroutineRunner _coroutineRunner;
         private Coroutine _fromCueToBoardC;
@@ -91,6 +92,11 @@ namespace GameModule
 
         }
 
+        private void InitializeBallTrajectoryShower()
+        {
+            var trajectoryShower = new ClassicBallTrajectoryShower();
+        }
+
         private void InitializeClassicPlayerControllerCanvas()
         {
             _controllerCanvas = Object.Instantiate(_controllerCanvasPrefab, _container);
@@ -115,7 +121,7 @@ namespace GameModule
         {
             _ballLauncher.Activate(_sliderValue);
             _controllerCanvas.Content.gameObject.SetActive(false);
-            _fromCueToBoardC = _coroutineRunner.StartCoroutine(FromCueToBoard());
+            //_fromCueToBoardC = _coroutineRunner.StartCoroutine(FromCueToBoard());
             _checkBallsMovingC = _coroutineRunner.StartCoroutine(CheckBallsMoving());
         }
 
@@ -159,7 +165,7 @@ namespace GameModule
         private void OnEndMovingBalls()
         {
             MoveCueToMainBall(DefaulSettings);
-            _fromBoardToCueC = _coroutineRunner.StartCoroutine(FromBoardToCue());
+            //_fromBoardToCueC = _coroutineRunner.StartCoroutine(FromBoardToCue());
         }
 
         private IEnumerator CheckBallsMoving()
