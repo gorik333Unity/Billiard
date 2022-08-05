@@ -52,6 +52,7 @@ namespace GameModule
         {
             var visual = Object.Instantiate(_visualPrefab, _container);
             visual.Initialize();
+            visual.gameObject.SetActive(false);
             _visual = visual;
         }
 
@@ -78,34 +79,35 @@ namespace GameModule
                         yield return null;
                         continue;
                     }
+                    else
+                    {
+                        _visual.gameObject.SetActive(true);
+                    }
 
-                    //Debug.Log(hit.collider.name);
-                    //var from = hit.collider.col - _cueStick.Position;
-                    //var to = _cueStick.transform.up;
-
-                    var sphereCenter = _cue.Position + _cue.transform.forward * 3f;
-                    var ballCenter = ball.Position;
-                    var result = (sphereCenter + ballCenter) / 2;
-
-                    //var testPosition = 
-                    //var offset = result - sphereCenter;
 
                     var pos = SphereCastCenterOnCollision(cueT.position, cueT.forward, hit.distance);
+                    pos.y = ball.Position.y;
                     _visual.transform.position = pos;
 
-                    var cueDirection = (result - cueT.position).normalized;
-                    var direction = (ballCenter - hit.point).normalized;
-                    var reflect = Vector3.Reflect(cueDirection, hit.normal);
-                    //Debug.DrawRay(sphereCenter, direction, Color.white);
+                    var sphereCenter = ball.Position;
+                    var ballCenter = ball.Position;
+                    var result = (sphereCenter + ballCenter) / 2;
+                    var hitPoint = hit.point;
+                    hitPoint.y = ball.Position.y;
 
+                    var cueDirection = (result - cueT.position).normalized;
+                    var direction = (ballCenter - hitPoint).normalized;
+                    var reflect = Vector3.Reflect(cueDirection, hit.normal);
                     var perpendecular = Vector3.Reflect(direction, Vector3.Reflect(reflect, Vector3.Cross(reflect, Vector3.up)));
 
                     Debug.DrawRay(_visual.transform.position, perpendecular, Color.red);
                     Debug.DrawRay(_visual.transform.position, reflect, Color.magenta);
                     Debug.DrawRay(_visual.transform.position, direction, Color.blue);
                     Debug.DrawLine(cueT.position, pos, Color.white);
-
-                    //Debug.Log(Vector3.Angle(from, to));
+                }
+                else
+                {
+                    _visual.gameObject.SetActive(false);
                 }
 
                 yield return null;
