@@ -6,19 +6,20 @@ namespace EnviromentModule
 {
     public class BoardPocket : MonoBehaviour
     {
-        private event Action<Ball> _onBallDestroyed;
+        private event Action<Ball> _onBallFallen;
 
-        public void OnBallDestroyed(Action<Ball> action)
+        public void OnBallFallen(Action<Ball> action)
         {
-            _onBallDestroyed = action;
+            _onBallFallen = action;
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.TryGetComponent(out Ball ball))
+            var ball = other.GetComponentInParent<Ball>();
+
+            if (ball != null)
             {
-                _onBallDestroyed?.Invoke(ball);
-                Destroy(ball.gameObject);
+                _onBallFallen?.Invoke(ball);
             }
         }
     }

@@ -5,7 +5,7 @@ namespace GameModule
 {
     public class ClassicBallLaucher : IBallLauncher
     {
-        private readonly float _strength = 1f;
+        private readonly float _strength = 0.75f;
 
         private Cue _cue;
         private Ball _ball;

@@ -33,6 +33,9 @@ namespace GameModule
         [SerializeField]
         private ClassicPlayerControllerCanvas _classicPlayerCanvasPrefab;
 
+        [SerializeReference, SubclassSelector]
+        private ClassicPlayerController _classicPlayerController;
+
         private IShapeBuilder _shapeBuilder = new PyramidShapeBuilder();
         private IPlayerController _playerController;
 
@@ -102,7 +105,7 @@ namespace GameModule
 
         private void InitializePlayerController(Board board, Cue cue)
         {
-            var controller = new ClassicPlayerController();
+            var controller = _classicPlayerController;
             controller.Inject(_classicPlayerCanvasPrefab);
             controller.Initialize(_virtualCamera, board, cue, _mainBall, _coroutineRunner);
             _playerController = controller;
@@ -133,10 +136,7 @@ namespace GameModule
             var ballsForPyramid = SpawnBallsForPyramid(_ballPrefab);
             var mainBall = SpawnMainBall(mainSpawnPosition, _ballPrefab);
             _shapeBuilder.Build(otherSpawnPosition, ballsForPyramid);
-
-            var allBalls = new List<Ball>() { _mainBall };
-            allBalls.AddRange(ballsForPyramid);
-            board.SetBoardBalls(allBalls.ToArray());
+            board.SetBoardBalls(ballsForPyramid, mainBall);
 
             _mainBall = mainBall;
             _otherBall = ballsForPyramid;

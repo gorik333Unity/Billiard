@@ -21,6 +21,7 @@ namespace GameModule
 
         public void Activate()
         {
+            StopHorizontalRotate();
             _horizontalRotateC = _coroutineRunner.StartCoroutine(HorizontalRotate());
         }
 

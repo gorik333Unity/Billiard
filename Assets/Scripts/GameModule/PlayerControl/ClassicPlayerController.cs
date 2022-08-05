@@ -9,16 +9,22 @@ using Object = UnityEngine.Object;
 
 namespace GameModule
 {
-    public class ClassicPlayerController : IPlayerController, IInjectionReceiver<ClassicPlayerControllerCanvas>
+    [System.Serializable]
+    public class ClassicPlayerController : IPlayerController
     {
         private readonly string _containerName = "ClassicPlayerControllerContainer";
         private readonly Vector3 _cuePosition = new Vector3(0f, 0.21f, 0f);
         private readonly Vector3 _boardPosition = new Vector3(0f, 1.5f, 0.54f);
         private readonly float _switchSpeed = 4f;
-        private readonly float _checkInterval = 0.3f;
+        private readonly float _checkInterval = 0.15f;
         private readonly float _moveTimeCueToBall = 0.75f;
 
+        [SerializeReference, SubclassSelector]
+        private ClassicBallTrajectoryShower _classicBallTrajectoryShower;
+
+        [SerializeField]
         private ClassicPlayerControllerCanvas _controllerCanvasPrefab;
+
         private ClassicPlayerControllerCanvas _controllerCanvas;
         private CinemachineVirtualCamera _virtualCamera;
         private Board _board;
@@ -26,8 +32,8 @@ namespace GameModule
         private Ball _mainBall;
         private Transform _container;
         private float _sliderValue;
-        private IBallLauncher _ballLauncher;
         private IBallTrajectoryShower _ballTrajectoryShower;
+        private IBallLauncher _ballLauncher;
         private ICueRotator _cueRotator;
         private CoroutineRunner _coroutineRunner;
         private Coroutine _fromCueToBoardC;
@@ -50,6 +56,7 @@ namespace GameModule
             InitializeCue();
             InitializeClassicPlayerControllerCanvas();
             InitializeBallLauncher();
+            InitializeBallTrajectoryShower();
         }
 
         public void Initialize()
@@ -63,6 +70,7 @@ namespace GameModule
 
         public void Activate()
         {
+            ClassicPlayerControllerCanvas_OnHorizontalChooseClicked();
             MoveCueToMainBall(DefaulSettings);
             _cue.SetFollowedBall(_mainBall);
         }
@@ -76,9 +84,9 @@ namespace GameModule
 
         private void DefaulSettings()
         {
-            //_fromBoardToCueC = _coroutineRunner.StartCoroutine(FromBoardToCue());
-            ClassicPlayerControllerCanvas_OnHorizontalChooseClicked();
+            _cueRotator.Activate();
             _controllerCanvas.Content.gameObject.SetActive(true);
+            _ballTrajectoryShower.Activate();
         }
 
         private void InitializeContainer()
@@ -94,7 +102,9 @@ namespace GameModule
 
         private void InitializeBallTrajectoryShower()
         {
-            var trajectoryShower = new ClassicBallTrajectoryShower();
+            var shower = _classicBallTrajectoryShower;
+            shower.Initialize(_cue);
+            _ballTrajectoryShower = shower;
         }
 
         private void InitializeClassicPlayerControllerCanvas()
@@ -121,6 +131,8 @@ namespace GameModule
         {
             _ballLauncher.Activate(_sliderValue);
             _controllerCanvas.Content.gameObject.SetActive(false);
+            _ballTrajectoryShower.Deactivate();
+            _cueRotator.Deactivate();
             //_fromCueToBoardC = _coroutineRunner.StartCoroutine(FromCueToBoard());
             _checkBallsMovingC = _coroutineRunner.StartCoroutine(CheckBallsMoving());
         }
@@ -172,14 +184,14 @@ namespace GameModule
         {
             while (true)
             {
+                yield return new WaitForSeconds(_checkInterval);
+
                 if (!_board.AreAnyBallMoving())
                 {
                     OnEndMovingBalls();
                     _checkBallsMovingC = null;
                     yield break;
                 }
-
-                yield return new WaitForSeconds(_checkInterval);
             }
         }
 
